@@ -1,5 +1,14 @@
-const { normalizeURL } = require("./crawl.js");
+const { normalizeURL, getURLFROMHTML } = require("./crawl.js");
 
 normalizeURL("https://www.blog.boot.dev/path/");
-
-console.log("Hello World!");
+getURLFROMHTML(
+  ` 
+<html>
+    <body>
+        <a href="/page1">Page 1</a>
+        <a href="/page2">Page 2</a>
+    </body>
+</html>
+`,
+  "https://www.example.com"
+);
