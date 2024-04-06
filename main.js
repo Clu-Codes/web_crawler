@@ -1,14 +1,17 @@
-const { normalizeURL, getURLFROMHTML } = require("./crawl.js");
+const { argv } = require("node:process");
+const { normalizeURL, getURLFROMHTML, crawlPage } = require("./crawl.js");
 
-normalizeURL("https://www.blog.boot.dev/path/");
-getURLFROMHTML(
-  ` 
-<html>
-    <body>
-        <a href="/page1">Page 1</a>
-        <a href="/page2">Page 2</a>
-    </body>
-</html>
-`,
-  "https://www.example.com"
-);
+const main = () => {
+  if (argv.length > 3 || argv.lenth < 3) {
+    console.log("Invalid number of arguments submitted.");
+  }
+
+  const baseURL = argv[2];
+  if (argv.length === 3) {
+    console.log(`web crawler booting up. Starting crawl of... ${baseURL}`);
+  }
+
+  crawlPage(baseURL);
+};
+
+main();
