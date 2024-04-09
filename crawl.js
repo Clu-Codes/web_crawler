@@ -30,45 +30,43 @@ const getURLFROMHTML = (htmlbody, baseURL) => {
   return filteredArr;
 };
 
-async function crawlPage(baseURL, currentURL = baseURL, pages = {}) {
-  const baseURLLength = baseURL.length;
-  if (baseURL === currentURL.slice(0, baseURLLength)) {
-    const cleanURL = normalizeURL(currentURL);
-    if (pages[cleanURL]) {
-      pages[cleanURL] += 1;
-      return pages;
-    } else {
-      pages[cleanURL] = 1;
-    }
-  } else if (currentURL.slice(0) === "/") {
-    const cleanBase = normalizeURL(baseURL);
-    const cleanURL = normalizeURL(`${cleanBase}${currentURL}`);
-    if (pages[cleanURL]) {
-      pages[cleanURL] += 1;
-      return pages;
-    } else {
-      pages[cleanURL] = 1;
-    }
+async function crawlPage(baseURL, currentURL, pages = {}) {
+  const currentUrlObj = new URL(currentURL);
+  const baseUrlObj = new URL(baseURL);
+  if (currentUrlObj.hostname !== baseUrlObj.hostname) {
+    return pages;
   }
+
+  const cleanURL = normalizeURL(currentURL);
+  if (pages[cleanURL] > 0) {
+    pages[cleanURL]++;
+    return pages;
+  }
+  pages[cleanURL] = 1;
+
+  console.log(`crawling: ${currentURL}...`);
+  respHTML = "";
   try {
-    console.log(`crawling: ${currentURL}...`);
     const resp = await fetch(currentURL);
     if (resp.status > 399) {
       console.log(`HTTP error status code: ${resp.status}`);
-      return;
+      return pages;
     }
     const contentType = resp.headers.get("content-type");
     if (!contentType.includes("text/html")) {
       console.log(`Got non-html response: ${contentType}`);
-      return;
+      return pages;
     }
-    const respHTML = await resp.text();
-    const pageURLs = getURLFROMHTML(respHTML, baseURL);
-    await Promise.all(pageURLs.map((link) => crawlPage(baseURL, link, pages)));
-    return pages;
+    respHTML = await resp.text();
   } catch (e) {
     console.log(e.message);
   }
+  const pageURLs = getURLFROMHTML(respHTML, baseURL);
+  //   for (const pageURL of pageURLs) {
+  //     pages = await crawlPage(baseURL, pageURL, pages);
+  //   }
+  await Promise.all(pageURLs.map((link) => crawlPage(baseURL, link, pages)));
+  return pages;
 }
 
 module.exports = {
