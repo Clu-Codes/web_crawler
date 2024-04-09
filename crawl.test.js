@@ -4,10 +4,10 @@ const { normalizeURL, getURLFROMHTML } = require("./crawl.js");
 test("URL normalizer", () => {
   const url1 = "http://blog.boot.dev/path/";
   const url2 = "https://blog.boot.dev/path/";
-  const url3 = "http://blog.boot.dev/path";
+  const url3 = "http://blog.boot.dev/";
   expect(normalizeURL(url1)).toEqual("blog.boot.dev/path");
   expect(normalizeURL(url2)).toEqual("blog.boot.dev/path");
-  expect(normalizeURL(url3)).toEqual("blog.boot.dev/path");
+  expect(normalizeURL(url3)).toEqual("blog.boot.dev");
 });
 
 test("HTML URL Extractor", () => {
